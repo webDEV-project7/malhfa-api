@@ -70,6 +70,20 @@ def setup_admin(db: Session = Depends(get_db)):
     return {"status": "admin ready"}
 
 
+
+@app.get("/fix-admin-login-2026")
+def fix_admin_login(db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == "admin").first()
+    if not user:
+        user = models.User(username="admin", hashed_password=auth.get_password_hash("admin"), role="admin")
+        db.add(user)
+    else:
+        user.hashed_password = auth.get_password_hash("admin")
+        user.role = "admin"
+    db.commit()
+    return {"status": "admin login fixed", "username": "admin", "password": "admin"}
+
+
 @app.get("/test")
 def test():
     return {"status": "ok"}
