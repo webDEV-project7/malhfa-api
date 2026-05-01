@@ -1,0 +1,20 @@
+import pymysql
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
+MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
+MYSQL_DB = os.getenv("MYSQL_DB", "gestion_financiere")
+
+try:
+    connection = pymysql.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD)
+    cursor = connection.cursor()
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {gestion_financiere_DB}")
+    cursor.close()
+    connection.close()
+    print("Base de données créée ou déjà existante avec succès.")
+except Exception as e:
+    print(f"Erreur lors de la création de la base de données : {e}")

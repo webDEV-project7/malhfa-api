@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-multipart
+fpdf2
+pandas
+openpyxl
+jinja2
+pyjwt
+bcrypt
+passlib
+aiofiles
+stripe
+python-dotenv
+a2wsgi

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> MALHAFTI DESGIN</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1a1008;
+            --sand: #f5ede0;
+            --parchment: #fdf6ec;
+            --terracotta: #c4622d;
+            --terracotta-dark: #9e4a1f;
+            --gold: #c9930e;
+            --gold-light: #f0c84a;
+            --muted: #8a7060;
+            --border: #d8c8b0;
+            --card: #fffaf4;
+            --danger: #b83232;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--sand);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 20%;
+            background-image:
+                radial-gradient(ellipse at 60% 15%, rgba(196, 98, 45, 0.10) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 90%, rgba(201, 147, 14, 0.10) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Filigrane Logo en arrière-plan */
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 70px;
+            right: -10px;
+            width: 700px;
+            height: 700px;
+            background-image: url('/static/logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 1;
+            pointer-events: none;
+            z-index: 0;
+            mix-blend-mode: multiply;
+        }
+
+        /* Motif géométrique subtil en fond */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(196, 98, 45, 0.025) 40px,
+                    rgba(196, 98, 45, 0.025) 41px);
+            pointer-events: none;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            padding: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Carte principale */
+        .login-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(26, 16, 8, 0.15), 0 4px 20px rgba(26, 16, 8, 0.08);
+        }
+
+        /* En-tête de la carte */
+        .login-header {
+            background: var(--ink);
+            padding: 2.5rem 2rem 2rem;
+            text-align: center;
+            position: relative;
+            border-bottom: 3px solid var(--terracotta);
+        }
+
+        .login-logo-icon {
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, var(--terracotta), var(--gold));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 20px rgba(196, 98, 45, 0.4);
+        }
+
+        .login-brand {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--sand);
+            letter-spacing: -0.02em;
+        }
+
+        .login-brand-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--gold-light);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Corps du formulaire */
+        .login-body {
+            padding: 2.5rem 2rem;
+        }
+
+        .login-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1.8rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px 10px 38px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--parchment);
+            color: var(--ink);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 3px rgba(196, 98, 45, 0.12);
+        }
+
+        #login-error {
+            color: var(--danger);
+            font-size: 0.82rem;
+            font-family: 'IBM Plex Mono', monospace;
+            background: rgba(184, 50, 50, 0.08);
+            border: 1px solid rgba(184, 50, 50, 0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 1.2rem;
+            display: none;
+            text-align: center;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: var(--terracotta);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 14px rgba(196, 98, 45, 0.3);
+        }
+
+        .btn-login:hover {
+            background: var(--terracotta-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(196, 98, 45, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Ornement bas */
+        .login-footer {
+            text-align: center;
+            padding: 1rem 2rem 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+        }
+
+        .ornament {
+            color: var(--terracotta);
+            opacity: 0.5;
+            letter-spacing: 0.3em;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+
+            <!-- En-tête -->
+            <div class="login-header">
+                <div style="display: inline-block; padding: 12px; border-radius: 12px; margin-bottom: 1rem;">
+                    <img src="/static/logo.png" alt="MALHAFTI DESIGN"
+                        style="max-height: 150px; width: auto; display: block; filter: invert(1); mix-blend-mode: screen; background: transparent;">
+                </div>
+                <div class="login-brand-sub" style="margin-bottom: 1rem;"> MALHAFTI</div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="login-body">
+
+
+                <div id="login-error"><i class='bx bx-error-circle'></i> Login ou mot de passe incorrect.</div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Nom d'utilisateur</label>
+                        <div class="input-wrap">
+                            <i class='bx bx-user'></i>
+                            <input type="text" id="username" name="username" placeholder="Votre identifiant" required
+                                autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Mot de passe</label>
+                        <div class="input-wrap">
+                            <i class='bx bx-lock-alt'></i>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required
+                                autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class='bx bx-log-in'></i> Se connecter
+                    </button>
+                </form>
+            </div>
+
+            <!-- Pied de carte -->
+            <div class="login-footer">
+                <div class="ornament"></div>
+                MALHAFTI DESIGN LAAYOUN © 2026
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+
+            try {
+                const response = await fetch('/admin-login', {
+                    method: 'POST',
+                    body: data
+                });
+
+                if (response.ok) {
+                    window.location.href = '/admin';
+                } else {
+                    document.getElementById('login-error').style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('login-error').style.display = 'block';
+            }
+        };
+    </script>
+</body>
+
+</html>

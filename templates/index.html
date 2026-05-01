@@ -1,0 +1,633 @@
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financier</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=3">
+
+    <!-- Meta to pass user info to JS -->
+    <meta name="user-role" content="{{ user.role }}">
+
+</head>
+
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <header class="header glass" style="flex-direction: column; align-items: flex-start;">
+            <div style="display:flex; justify-content:space-between; width:100%;">
+                <div class="logo">
+                    <img src="/static/logo.png" alt="MALHAFTI." style="height: 60px; width: auto; object-fit: contain;">
+                </div>
+                <div class="header-actions" style="align-items: center;">
+                    <span style="font-weight: 500; margin-right: 1rem;"><i class='bx bxs-user-circle'></i> {{
+                        user.username }} ({{ user.role }})</span>
+                    <a href="/logout" class="btn btn-outline"
+                        style="padding: 0.4rem 0.8rem; border-color: var(--danger); color: var(--danger);"><i
+                            class='bx bx-log-out'></i> Déconnexion</a>
+                </div>
+            </div>
+
+            <div class="tabs">
+                {% if user.role == 'admin' or user.role == 'produit' %}
+                <button class="tab-btn active" onclick="openTab('tab-stats', this)"><i class='bx bx-chart-bar'></i>
+                    Statistiques</button>
+                <button class="tab-btn" onclick="openTab('tab-produit', this)"><i class='bx bx-edit'></i> Saisie
+                    Manuelle</button>
+                <button class="tab-btn" onclick="openTab('tab-catalog', this)"><i class='bx bx-store-alt'></i> Catalogue
+                    Store</button>
+                <button class="tab-btn" onclick="openTab('tab-orders-web', this)"><i class='bx bx-shopping-bag'></i>
+                    Commandes Web</button>
+                <button class="tab-btn" onclick="openTab('tab-caisse', this)"><i class='bx bx-basket'></i> Caisse &amp;
+                    Ventes</button>
+                {% endif %}
+                {% if user.role == 'admin' %}
+                <button class="tab-btn" onclick="openTab('tab-clients', this)"><i class='bx bxs-user-detail'></i>
+                    Clients</button>
+                {% endif %}
+                {% if user.role == 'admin' or user.role == 'charge' %}
+                <button class="tab-btn {% if user.role == 'charge' %}active{% endif %}"
+                    onclick="openTab('tab-charge', this)"><i class='bx bx-money'></i> Charges</button>
+                {% endif %}
+                {% if user.role == 'charge' %}
+                <button class="tab-btn" onclick="openTab('tab-stats', this)"><i class='bx bx-line-chart'></i>
+                    Statistiques</button>
+                {% endif %}
+                {% if user.role == 'admin' %}
+                <button class="tab-btn" onclick="openTab('tab-admin', this)"><i class='bx bx-cog'></i> Admin</button>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="main-content">
+
+            <!-- ================= ONGLET CATALOGUE (STORE) ================= -->
+            {% if user.role == 'admin' or user.role == 'produit' %}
+            <div id="tab-catalog" class="tab-content" style="display:none;">
+                <div class="manual-entry glass">
+                    <h3><i class='bx bx-plus-circle'></i> Ajouter une Malhfa au Store</h3>
+                    <form id="form-add-store-product">
+                        <div class="form-group">
+                            <label>Nom de la Malhfa</label>
+                            <input type="text" id="store_p_name" placeholder="Ex: Malhafa Silk Luxury" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Prix (DH)</label><input type="number" step="0.01"
+                                    id="store_p_price" required></div>
+                            <div class="form-group"><label>Stock Initial</label><input type="number"
+                                    id="store_p_stock" value="0" required></div>
+                            <div class="form-group">
+                                <label>Catégorie</label>
+                                <select id="store_p_category">
+                                    <option value="Collection">Collection Générale</option>
+                                    <option value="Nouvelle">Nouvelle Collection</option>
+                                    <option value="Luxe">Édition Luxe</option>
+                                    <option value="Tradition">Héritage Tradition</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full mt-4"><i class='bx bx-save'></i>
+                            Enregistrer dans le Catalogue</button>
+                    </form>
+                </div>
+
+                <div class="history-section glass mt-6">
+                    <h3><i class='bx bx-list-ul'></i> Modèles dans le Store</h3>
+                    <div class="table-responsive">
+                        <table id="table-catalog">
+                            <thead>
+                                <tr>
+                                    <th>Photo</th>
+                                    <th>Nom</th>
+                                    <th>Prix</th>
+                                    <th>Stock</th>
+                                    <th>Upload Média</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ================= ONGLET SUIVI COMMANDES WEB ================= -->
+            {% if user.role == 'admin' or user.role == 'produit' %}
+            <div id="tab-orders-web" class="tab-content" style="display:none;">
+                <div class="history-section glass">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                        <h3><i class='bx bx-globe'></i> Commandes Clientèle Store</h3>
+                        <span class="badge badge-produit" id="order-count-badge">0 Commandes</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="table-orders">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Contact</th>
+                                    <th>Total (DH)</th>
+                                    <th>Statut Actuel</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ================= ONGLET PRODUITS ================= -->
+            {% if user.role == 'admin' or user.role == 'produit' %}
+            <div id="tab-produit" class="tab-content" style="display:none;">
+                <div class="grid-col-2">
+                    <div class="upload-container glass">
+                        <i class='bx bx-cloud-upload upload-icon'></i>
+                        <h3>Importer Produits (Excel)</h3>
+                        <p>Glissez-déposez ou cliquez</p>
+                        <input type="file" id="file-produit" accept=".xlsx" hidden
+                            onchange="handleFileUpload(this.files[0])">
+                        <button class="btn btn-primary" onclick="document.getElementById('file-produit').click()"><i
+                                class='bx bx-folder-open'></i> Parcourir</button>
+                        <a href="/api/template" class="btn btn-outline" download style="margin-left:10px"><i
+                                class='bx bx-download'></i> Modèle Excel</a>
+                        <div id="upload-status-produit" class="status-msg"></div>
+                    </div>
+
+                    <div class="manual-entry glass">
+                        <h3><i class='bx bx-edit'></i> Saisie Produit</h3>
+                        <form id="form-produit">
+                            <div class="form-group">
+                                <label>Désignation</label>
+                                <input type="text" id="p_des" list="p-list" placeholder="Malhaf..." required>
+                                <datalist id="p-list">
+                                    <option value="Malhaf Double">
+                                    <option value="Malhaf Simple">
+                                    <option value="Malhfa personnalisée">
+                                </datalist>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Quantité</label><input type="number" step="0.01"
+                                        id="p_qte" value="1" required oninput="calcP()"></div>
+                                <div class="form-group"><label>Prix U. (DH)</label><input type="number" step="0.01"
+                                        id="p_pu" value="0.00" required oninput="calcP()"></div>
+                            </div>
+                            <div class="live-calc">Total : <span id="p_tot">0.00 DH</span></div>
+                            <button type="submit" class="btn btn-primary w-full"><i class='bx bx-plus'></i> Ajouter
+                                Produit</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="history-section glass mt-6">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3><i class='bx bx-history'></i> Historique Produits</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="table-produit">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Désignation</th>
+                                    <th>Qté</th>
+                                    <th>P.U</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ================= ONGLET CAISSE ================= -->
+            {% if user.role == 'admin' or user.role == 'produit' %}
+            <div id="tab-caisse" class="tab-content" style="display:none;">
+                <div class="grid-col-2">
+                    <div class="manual-entry glass">
+                        <h3><i class='bx bx-cart-add'></i> Ajouter au Panier</h3>
+                        <form id="form-caisse-add">
+                            <div class="form-group">
+                                <label>Désignation</label>
+                                <input type="text" id="cart_des" list="p-list" placeholder="Malhaf..." required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Quantité</label><input type="number" step="0.01"
+                                        id="cart_qte" value="1" required oninput="calcCartLine()"></div>
+                                <div class="form-group"><label>Prix U. (DH)</label><input type="number" step="0.01"
+                                        id="cart_pu" value="0.00" required oninput="calcCartLine()"></div>
+                            </div>
+                            <div class="live-calc">Total : <span id="cart_line_tot">0.00 DH</span></div>
+                            <button type="submit" class="btn btn-primary w-full"><i class='bx bx-down-arrow-alt'></i>
+                                Mettre dans le panier</button>
+                        </form>
+                    </div>
+
+                    <div class="history-section glass">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3><i class='bx bx-shopping-bag'></i> Mon Panier</h3>
+                            <h3 id="cart_total_display" style="color:var(--primary);">0.00 DH</h3>
+                        </div>
+                        <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                            <table id="table-cart">
+                                <thead>
+                                    <tr>
+                                        <th>Désignation</th>
+                                        <th>Qté</th>
+                                        <th>P.U</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border);">
+                        <h4><i class='bx bx-user'></i> Informations Facturation</h4>
+                        <form id="form-caisse-checkout">
+                            <div class="form-group">
+                                <input type="text" id="chk_client_name" placeholder="Nom du Client" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><input type="text" id="chk_client_ice"
+                                        placeholder="N° ICE (Optionnel)"></div>
+                                <div class="form-group"><input type="text" id="chk_client_phone"
+                                        placeholder="Téléphone"></div>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="chk_client_address" placeholder="Adresse">
+                            </div>
+                            <button type="submit" class="btn btn-success w-full mt-6"
+                                style="background-color: #10b981; color: white; border:none; padding:0.8rem; border-radius:8px;"><i
+                                    class='bx bx-check-circle'></i> Valider Commande & Imprimer PDF</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="history-section glass mt-6">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3><i class='bx bx-globe'></i> Commandes Store</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="table-orders">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Téléphone</th>
+                                    <th>Paiement</th>
+                                    <th>Statut</th>
+                                    <th>Total (DH)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ================= ONGLET CHARGES ================= -->
+            {% if user.role == 'admin' or user.role == 'charge' %}
+            <div id="tab-charge" class="tab-content" style="{% if user.role != 'charge' %}display:none;{% endif %}">
+                <div class="grid-col-2">
+                    <div class="upload-container glass">
+                        <i class='bx bx-cloud-upload upload-icon' style="color:var(--danger)"></i>
+                        <h3>Importer Charges (Excel)</h3>
+                        <p>Glissez-déposez ou cliquez</p>
+                        <input type="file" id="file-charge" accept=".xlsx" hidden
+                            onchange="handleFileUpload(this.files[0])">
+                        <button class="btn btn-danger" onclick="document.getElementById('file-charge').click()"><i
+                                class='bx bx-folder-open'></i> Parcourir</button>
+                        <div id="upload-status-charge" class="status-msg"></div>
+                    </div>
+
+                    <div class="manual-entry glass">
+                        <h3><i class='bx bx-edit'></i> Saisie Charge Locale</h3>
+                        <form id="form-charge">
+                            <div class="form-group">
+                                <label>Catégorie (Ex: Achat, Transport...)</label>
+                                <input type="text" id="c_type" list="c-cat-list" placeholder="Sélectionnez..." required>
+                                <datalist id="c-cat-list">
+                                    <option value="Achat">
+                                    <option value="Transport">
+                                    <option value="Frais douane">
+                                    <option value="Controleur Douane">
+                                    <option value="Taxe Douane">
+                                    <option value="Transitaire">
+                                    <option value="Transport local">
+                                    <option value="Charge du retard">
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <label>Désignation (Nom Produit ou Description)</label>
+                                <input type="text" id="c_des" list="c-des-list" placeholder="Malhaf Double, trajet..."
+                                    required>
+                                <datalist id="c-des-list">
+                                    <option value="Malhaf Double">
+                                    <option value="Malhaf Simple">
+                                    <option value="Malhfa personnalisée">
+                                </datalist>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Quantité (Unité ou Kg)</label><input type="number"
+                                        step="0.01" id="c_qte" value="1" required oninput="calcC()"></div>
+                                <div class="form-group"><label>Prix U. (DH)</label><input type="number" step="0.01"
+                                        id="c_pu" value="0.00" required oninput="calcC()"></div>
+                            </div>
+                            <div class="live-calc"
+                                style="border-left-color:var(--danger); background:rgba(239,68,68,0.1);">Total : <span
+                                    id="c_tot" style="color:var(--danger)">0.00 DH</span></div>
+                            <button type="submit" class="btn btn-danger w-full" style="color:#fff;"><i
+                                    class='bx bx-plus'></i> Ajouter Charge</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="history-section glass mt-6">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                        <h3 style="margin:0;"><i class='bx bx-history'></i> Historique Charges</h3>
+                        <a href="/api/export" class="btn btn-outline" download><i class='bx bx-export'></i> Exporter CSV
+                            Global</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="table-charge">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Désignation</th>
+                                    <th>Catégorie</th>
+                                    <th>Qté</th>
+                                    <th>P.U</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.role == 'admin' or user.role == 'produit' or user.role == 'charge' %}
+            <div id="tab-stats" class="tab-content"
+                style="{% if user.role == 'charge' %}display:none;{% else %}display:block;{% endif %}">
+                <div class="dashboard-grid">
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon"><i class='bx bx-line-chart'></i></div>
+                        <div class="kpi-info">
+                            <h3>Chiffre d'Affaires Global</h3>
+                            <h2 id="kpi-ca">0.00 DH</h2>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Dont Web: <strong id="kpi-ca-web"
+                                    style="color:var(--primary);">0.00 DH</strong></p>
+                        </div>
+                    </div>
+                    {% if user.role == 'admin' %}
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon danger"><i class='bx bx-trending-down'></i></div>
+                        <div class="kpi-info">
+                            <h3>Charges</h3>
+                            <h2 id="kpi-charges">0.00 DH</h2>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon success"><i class='bx bx-wallet'></i></div>
+                        <div class="kpi-info">
+                            <h3>Bénéfice Brut</h3>
+                            <h2 id="kpi-benefice">0.00 DH</h2>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon warning"><i class='bx bx-pie-chart-alt-2'></i></div>
+                        <div class="kpi-info">
+                            <h3>Marge Moyenne</h3>
+                            <h2 id="kpi-marge">0.00 %</h2>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="chart-section glass mt-6">
+                    <h3><i class='bx bx-line-chart'></i> Évolution</h3>
+                    <div class="chart-container"><canvas id="financeChart"></canvas></div>
+                </div>
+                <div class="grid-col-2 mt-6" {% if user.role !='admin' %}style="grid-template-columns: 1fr;" {% endif
+                    %}>
+                    <div class="chart-section glass">
+                        <h3><i class='bx bx-pie-chart'></i> Produits</h3>
+                        <div class="chart-container" style="height:250px;"><canvas id="productsChart"></canvas></div>
+                    </div>
+                    {% if user.role == 'admin' %}
+                    <div class="chart-section glass">
+                        <h3><i class='bx bx-pie-chart-alt'></i> Charges</h3>
+                        <div class="chart-container" style="height:250px;"><canvas id="chargesChart"></canvas></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ================= ONGLET ADMIN ================= -->
+            <div id="tab-admin" class="tab-content" style="display:none;">
+                <div class="grid-col-2">
+                    <div class="manual-entry glass">
+                        <h3><i class='bx bx-user-plus'></i> Ajouter Utilisateur</h3>
+                        <form id="form-user">
+                            <div class="form-group">
+                                <label>Nom d'utilisateur</label>
+                                <input type="text" id="u_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mot de passe</label>
+                                <input type="password" id="u_pass" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Rôle Permission</label>
+                                <select id="u_role" required>
+                                    <option value="produit">Employé Produit (Accès ventes)</option>
+                                    <option value="charge">Employé Charge (Accès dépenses)</option>
+                                    <option value="admin">Administrateur (Accès total)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full"><i class='bx bx-plus'></i> Créer le
+                                compte</button>
+                        </form>
+                    </div>
+
+                    <div class="history-section glass">
+                        <h3><i class='bx bx-group'></i> Utilisateurs</h3>
+                        <table id="table-user">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Rôle</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ================= ONGLET CLIENTS ================= -->
+        {% if user.role == 'admin' %}
+        <div id="tab-clients" class="tab-content" style="display:none;">
+            <div class="history-section glass">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <div>
+                        <h3><i class='bx bxs-user-detail'></i> Répertoire Clients Store</h3>
+                        <p style="color:var(--muted); font-size:0.85rem; margin-top:0.25rem;">Clients inscrits via la
+                            boutique en ligne.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <div class="kpi-card glass" style="padding:0.6rem 1.2rem; min-width:unset;">
+                            <span style="font-size:0.75rem; color:var(--muted); text-transform:uppercase;">Total</span>
+                            <div style="font-size:1.5rem; font-weight:700; color:var(--terracotta);"
+                                id="kpi-total-clients">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="table-clients">
+                        <thead>
+                            <tr>
+                                <th>Nom Complet</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Adresse</th>
+                                <th>Commandes</th>
+                                <th>Inscrit le</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+    </div>
+
+    <!-- Modal Facture -->
+    <div id="invoice-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close-modal">&times;</span>
+            <h2><i class='bx bx-receipt'></i> Créer Facture Client</h2>
+            <p style="color:var(--text-muted); margin-bottom:1rem;">Remplissez les informations du client pour le
+                produit sélectionné.</p>
+            <form id="invoice-form">
+                <input type="hidden" id="inv_entry_id">
+                <div class="form-group">
+                    <label>Nom du Client</label>
+                    <input type="text" id="client_name" required>
+                </div>
+                <div class="form-group">
+                    <label>ICE (Optionnel)</label>
+                    <input type="text" id="client_ice" placeholder="N° ICE">
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Téléphone</label><input type="text" id="client_phone"></div>
+                    <div class="form-group"><label>Adresse</label><input type="text" id="client_address"></div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-6" style="margin-top: 1.5rem;"><i
+                        class='bx bx-file-blank'></i> Télécharger PDF</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Product -->
+    <div id="edit-product-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close-modal"
+                onclick="document.getElementById('edit-product-modal').style.display='none';">&times;</span>
+            <h2><i class='bx bx-edit'></i> Modifier la Malhfa</h2>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit_product_id">
+                <div class="form-group">
+                    <label>Nom de la Malhfa</label>
+                    <input type="text" id="edit_product_name" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Prix (DH)</label><input type="number" step="0.01"
+                            id="edit_product_price" required></div>
+                    <div class="form-group"><label>Stock</label><input type="number" id="edit_product_stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="edit_product_category" style="width:100%; padding:0.5rem; border-radius:8px;">
+                            <option value="Collection">Collection Générale</option>
+                            <option value="Nouvelle">Nouvelle Collection</option>
+                            <option value="Luxe">Édition Luxe</option>
+                            <option value="Tradition">Héritage Tradition</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-6"><i class='bx bx-save'></i> Enregistrer les
+                    modifications</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Upload Media -->
+    <div id="media-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close-modal"
+                onclick="document.getElementById('media-modal').style.display='none';">&times;</span>
+            <h2><i class='bx bx-cloud-upload'></i> Ajouter Média (Image/Vidéo)</h2>
+            <p style="color:var(--text-muted); margin-bottom:1rem;">Images JPG/PNG et Vidéos courtes pour sublimer le
+                store.</p>
+            <form id="media-form" enctype="multipart/form-data">
+                <input type="hidden" id="media_product_id">
+                <div class="form-group">
+                    <label>Image de la Malhfa</label>
+                    <input type="file" id="media_image" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Vidéo courte (ex: Aperçu porté)</label>
+                    <input type="file" id="media_video" accept="video/*">
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-6"><i class='bx bx-upload'></i> Envoyer au
+                    STORE</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Gallery -->
+    <div id="gallery-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close-modal"
+                onclick="document.getElementById('gallery-modal').style.display='none';">&times;</span>
+            <h2><i class='bx bx-images'></i> Galerie Produits</h2>
+            <p style="color:var(--text-muted); margin-bottom:1rem;">Ajoutez des images supplémentaires pour montrer les
+                détails de la Malhfa.</p>
+            <form id="gallery-form" enctype="multipart/form-data">
+                <input type="hidden" id="gallery_product_id">
+                <div class="form-group">
+                    <label>Ajouter une photo</label>
+                    <input type="file" id="gallery_image" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-full mt-6"><i class='bx bx-plus'></i> Ajouter à la
+                    galerie</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/script.js?v=12"></script>
+</body>
+
+</html>
