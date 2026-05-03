@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 
 # Limiter les threads AVANT tout import
@@ -175,7 +175,7 @@ def index_admin(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/api/users", response_model=schemas.UserResponse)
 def create_user(request: Request, user: schemas.UserCreate, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     if db.query(models.User).filter(models.User.username == user.username).first():
         raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe deja")
     db_user = models.User(
@@ -191,13 +191,13 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
 
 @app.get("/api/users", response_model=List[schemas.UserResponse])
 def get_users(request: Request, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     return db.query(models.User).all()
 
 
 @app.delete("/api/users/{user_id}")
 def delete_user(request: Request, user_id: int, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
@@ -210,7 +210,7 @@ def delete_user(request: Request, user_id: int, db: Session = Depends(get_db)):
 
 @app.get("/malhfa-manager/customers", response_class=HTMLResponse)
 def admin_customers(request: Request, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     customers = db.query(models.Customer).all()
     customer_stats = []
     for c in customers:
@@ -221,7 +221,7 @@ def admin_customers(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/api/malhfa-manager/customers")
 def get_all_customers_stats(request: Request, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     customers = db.query(models.Customer).all()
     results = []
     for c in customers:
@@ -586,7 +586,7 @@ def checkout_cart(request: Request, checkout_req: schemas.CheckoutRequest, db: S
 
 @app.post("/api/products", response_model=schemas.ProductResponse)
 def create_product(request: Request, product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     db_product = models.Product(**product.model_dump())
     db.add(db_product)
     db.commit()
@@ -623,7 +623,7 @@ def collections_page(request: Request, db: Session = Depends(get_db)):
 
 @app.put("/api/products/{product_id}", response_model=schemas.ProductResponse)
 def update_product(request: Request, product_id: int, product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Produit introuvable")
@@ -640,7 +640,7 @@ def update_product(request: Request, product_id: int, product: schemas.ProductCr
 
 @app.post("/api/products/{product_id}/gallery")
 async def upload_gallery_image(request: Request, product_id: int, image: UploadFile = File(...), db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Produit introuvable")
@@ -659,7 +659,7 @@ async def upload_gallery_image(request: Request, product_id: int, image: UploadF
 
 @app.put("/api/orders/{order_id}/status")
 def update_order_status(request: Request, order_id: int, status_update: schemas.OrderStatusUpdate, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Commande introuvable")
@@ -670,7 +670,7 @@ def update_order_status(request: Request, order_id: int, status_update: schemas.
 
 @app.delete("/api/products/{product_id}")
 def delete_product(request: Request, product_id: int, db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Produit introuvable")
@@ -681,7 +681,7 @@ def delete_product(request: Request, product_id: int, db: Session = Depends(get_
 
 @app.post("/api/products/{product_id}/media")
 async def upload_product_media(request: Request, product_id: int, image: UploadFile = File(None), video: UploadFile = File(None), db: Session = Depends(get_db)):
-    auth.require_admin(request, db)
+    auth.require_auth(request, db)
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Produit introuvable")
@@ -900,3 +900,4 @@ async def create_checkout_session(payload: StoreCheckoutPayload, db: Session = D
         return {"url": checkout_session.url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
