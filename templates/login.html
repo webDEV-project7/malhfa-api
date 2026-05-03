@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -48,7 +48,7 @@
             overflow: hidden;
         }
 
-        /* Filigrane Logo en arriÃ¨re-plan */
+        /* Filigrane Logo en arrière-plan */
         body::after {
             content: '';
             position: fixed;
@@ -66,7 +66,7 @@
             mix-blend-mode: multiply;
         }
 
-        /* Motif gÃ©omÃ©trique subtil en fond */
+        /* Motif géométrique subtil en fond */
         body::before {
             content: '';
             position: fixed;
@@ -96,7 +96,7 @@
             box-shadow: 0 20px 60px rgba(26, 16, 8, 0.15), 0 4px 20px rgba(26, 16, 8, 0.08);
         }
 
-        /* En-tÃªte de la carte */
+        /* En-tête de la carte */
         .login-header {
             background: var(--ink);
             padding: 2.5rem 2rem 2rem;
@@ -264,7 +264,7 @@
     <div class="login-wrapper">
         <div class="login-card">
 
-            <!-- En-tÃªte -->
+            <!-- En-tête -->
             <div class="login-header">
                 <div style="display: inline-block; padding: 12px; border-radius: 12px; margin-bottom: 1rem;">
                     <img src="/static/logo.png" alt="MALHAFTI DESIGN"
@@ -292,7 +292,7 @@
                         <label>Mot de passe</label>
                         <div class="input-wrap">
                             <i class='bx bx-lock-alt'></i>
-                            <input type="password" id="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required
+                            <input type="password" id="password" name="password" placeholder="••••••••" required
                                 autocomplete="current-password">
                         </div>
                     </div>
@@ -305,7 +305,7 @@
             <!-- Pied de carte -->
             <div class="login-footer">
                 <div class="ornament"></div>
-                MALHAFTI DESIGN LAAYOUN Â© 2026
+                MALHAFTI DESIGN LAAYOUN © 2026
             </div>
         </div>
     </div>
@@ -323,7 +323,7 @@
                 });
 
                 if (response.ok) {
-                    window.location.href = '/admin';
+                    window.location.href = '/malhfa-manager';
                 } else {
                     document.getElementById('login-error').style.display = 'block';
                 }
